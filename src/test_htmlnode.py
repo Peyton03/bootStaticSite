@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -49,7 +49,46 @@ class TestHTMLNode(unittest.TestCase):
             node.__repr__(),
             "HTMLNode(p, What a strange world, children: None, {'class': 'primary'})",
         )
-
-
+class TestLeafNode(unittest.TestCase):
+    def test_leaf_to_html_p(self):
+        node = LeafNode("p", "Hello, world!")
+        self.assertEqual(node.to_html(), "<p>Hello, world!</p>")
+    def test_leaf_noTag(self):
+        node = LeafNode(None, "Hello, world!")
+        self.assertEqual(node.to_html(), "Hello, world!")
+    def test_leaf_noValue(self):
+        node = LeafNode("p", None)
+        with self.assertRaises(ValueError):
+            node.to_html()
 if __name__ == "__main__":
     unittest.main()
+
+class TestParentNode(unittest.TestCase):
+    def test_parent_to_html(self):
+        child1 = LeafNode("p", "Hello, world!")
+        child2 = LeafNode("p", "Goodbye, world!")
+        parent = ParentNode("div", [child1, child2])
+        self.assertEqual(
+            parent.to_html(),
+            "<div><p>Hello, world!</p><p>Goodbye, world!</p></div>",
+        )
+    def test_parent_noTag(self):
+        child1 = LeafNode("p", "Hello, world!")
+        child2 = LeafNode("p", "Goodbye, world!")
+        parent = ParentNode(None, [child1, child2])
+        with self.assertRaises(ValueError):
+            parent.to_html()    
+            
+    def test_to_html_with_children(self):
+        child_node = LeafNode("span", "child")
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
+
+    def test_to_html_with_grandchildren(self):
+        grandchild_node = LeafNode("b", "grandchild")
+        child_node = ParentNode("span", [grandchild_node])
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(
+        parent_node.to_html(),
+        "<div><span><b>grandchild</b></span></div>",
+    )
