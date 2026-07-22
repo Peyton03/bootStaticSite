@@ -11,7 +11,7 @@ def extract_markdown_images(text: str) -> list[str]:
     import re
 
     # Regular expression to match markdown image syntax ![alt text](image_url)
-    image_pattern = r'!\[.*?\]\((.*?)\)'
+    image_pattern = r"!\[(.*?)\]\((.*?)\)"
     return re.findall(image_pattern, text)  
 
 def extract_markdown_links(text: str) -> list[str]:
@@ -27,5 +27,5 @@ def extract_markdown_links(text: str) -> list[str]:
     import re
 
     # Regular expression to match markdown link syntax [link text](link_url)
-    link_pattern = r'\[.*?\]\((.*?)\)'
+    link_pattern = r"\[(.*?)\]\((.*?)\)"
     return re.findall(link_pattern, text)
