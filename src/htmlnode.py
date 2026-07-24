@@ -1,4 +1,6 @@
-from markdownblocks import MarkdownBlocks, block_to_block_type
+from markdownblocks import MarkdownBlocks, block_to_block_type, markdown_to_blocks
+
+
 class HTMLNode:
     def __init__(
         self,
@@ -64,22 +66,66 @@ class ParentNode(HTMLNode):
             children_html += child.to_html()
         return f"<{self.tag}{self.props_to_html()}>{children_html}</{self.tag}>"
 
-def markdown_to_html_node(markdown_blocks: list[str]) -> list[HTMLNode]:
+def markdown_to_html_node(markdown:str):
+    markdown_blocks = markdown_to_blocks(markdown)
     html_nodes = []
     for block in markdown_blocks:
         block_type = block_to_block_type(block)
         if block_type == MarkdownBlocks.heading:
-            html_nodes.append(LeafNode("h1", block[2:].strip()))
+            hcounter = 0
+            for character in block:
+                if character == "#":
+                    hcounter += 1
+                else:
+                    break
+            cleaned_text = block[hcounter:].strip()
+            children = text_to_children(cleaned_text)
+            html_nodes.append(ParentNode(f"h{hcounter}", children))
         elif block_type == MarkdownBlocks.code:
-            html_nodes.append(LeafNode("pre", block.strip()))
+            code_node = LeafNode("code", block[4:-3])
+            html_nodes.append(ParentNode("pre", [code_node]))
+
         elif block_type == MarkdownBlocks.quote:
-            html_nodes.append(LeafNode("blockquote", block[2:].strip()))
+            spltBlock = block.split("\n")
+            cleaned_lines = []
+            for line in spltBlock:
+                if line.startswith(">"):
+                    cleaned_lines.append(line[1:].strip())
+            cleaned_text = " ".join(cleaned_lines)
+            children = text_to_children(cleaned_text)
+            html_nodes.append(ParentNode("blockquote", children))
+
         elif block_type == MarkdownBlocks.unordered_list:
             items = [item[2:].strip() for item in block.split("\n")]
-            html_nodes.append(ParentNode("ul", [LeafNode("li", item) for item in items]))
+            list_nodes = []
+            for item in items:
+                children = text_to_children(item)
+                list_nodes.append(ParentNode("li", children))
+            html_nodes.append(ParentNode("ul", list_nodes))
+
+            
         elif block_type == MarkdownBlocks.ordered_list:
-            items = [item[3:].strip() for item in block.split("\n")]
-            html_nodes.append(ParentNode("ol", [LeafNode("li", item) for item in items]))
+            items = block.split("\n")
+            list_nodes = []
+            for item in items:
+                parts = item.split(". ", 1)
+                cleaned_item = parts[1]
+                children = text_to_children(cleaned_item)
+                list_nodes.append(ParentNode("li", children))
+            html_nodes.append(ParentNode("ol", list_nodes))
+            
         elif block_type == MarkdownBlocks.paragraph:
-            html_nodes.append(LeafNode("p", block.strip()))
-    return html_nodes
+            items = block.split("\n")
+            cleaned_text = " ".join([item.strip() for item in items])
+            children = text_to_children(cleaned_text)
+            html_nodes.append(ParentNode("p", children))
+
+    return ParentNode("div", html_nodes)
+def text_to_children(text):
+    from splitnode import text_to_textnodes
+    from textnode import text_node_to_html_node
+    children = []
+    for node in text_to_textnodes(text):
+        children.append(text_node_to_html_node(node))
+    return children
+        

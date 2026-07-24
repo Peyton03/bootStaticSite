@@ -10,8 +10,6 @@ class TestSplitNode(unittest.TestCase):
         self.assertEqual(new_nodes[1], TextNode("code block", TextType.CODE))
         self.assertEqual(new_nodes[2], TextNode(" word", TextType.TEXT))
 
-if __name__ == "__main__":
-        unittest.main()
 
 def test_split_images(self):
     node = TextNode(
@@ -66,3 +64,6 @@ class TestTextToTextNodes(unittest.TestCase):
             TextNode("italic text", TextType.ITALIC),
         ]
         self.assertEqual(result, expected)
+        
+if __name__ == "__main__":
+        unittest.main()
