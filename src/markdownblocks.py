@@ -13,7 +13,7 @@ def block_to_block_type(block):
         return MarkdownBlocks.code
     elif block.startswith(">"):
         return MarkdownBlocks.quote
-    elif block.startswith("-") or block.startswith("*"):
+    elif block.startswith("-") or block.startswith("* "):
         return MarkdownBlocks.unordered_list
     elif block[0].isdigit() and block[1] == ".":
         return MarkdownBlocks.ordered_list
