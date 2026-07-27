@@ -24,7 +24,7 @@ def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
     for node in old_nodes:
         if node.text_type == TextType.TEXT:
             images = extract_markdown_images(node.text)
-            print(images)
+            
             remaining_text = node.text
             for image_text, url in images:
                 full_image = f"![{image_text}]({url})"
@@ -45,7 +45,7 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
     for node in old_nodes:
         if node.text_type == TextType.TEXT:
             links = extract_markdown_links(node.text)
-            print(links)
+            
             remaining_text = node.text
             for link_text, url in links:
                 full_link = f"[{link_text}]({url})"
